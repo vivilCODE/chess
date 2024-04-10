@@ -1,4 +1,4 @@
-module github.com/vivilCODE/chess/chessApi
+module github.com/vivilCODE/chess/chessapi
 
 go 1.22.1
 

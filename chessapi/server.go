@@ -5,7 +5,7 @@ import (
 	"log"
 	"net"
 
-	pb "github.com/vivilCODE/chess/chessapi/protobuf"
+	pb "github.com/vivilCODE/chess/pb"
 	"google.golang.org/grpc"
 )
 
