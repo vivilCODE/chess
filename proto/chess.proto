@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+option go_package = ".;pb";
+
+
+message MakeMoveRequest {
+    string body = 1;
+}
+
+message MakeMoveResponse {
+    string body = 1;
+}
+
+message NewGameRequest {
+    string body = 1;
+}
+
+message NewGameResponse {
+    string body  = 1;
+}
+
+service ChessApi {
+    rpc MakeMove(MakeMoveRequest) returns (MakeMoveResponse) {};
+    rpc NewGame(NewGameRequest) returns (NewGameResponse) {};
+}
