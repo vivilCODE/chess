@@ -24,6 +24,7 @@ const _ = grpc.SupportPackageIsVersion7
 type ChessApiClient interface {
 	MakeMove(ctx context.Context, in *MakeMoveRequest, opts ...grpc.CallOption) (*MakeMoveResponse, error)
 	NewGame(ctx context.Context, in *NewGameRequest, opts ...grpc.CallOption) (*NewGameResponse, error)
+	Ping(ctx context.Context, in *PingRequest, opts ...grpc.CallOption) (*PingResponse, error)
 }
 
 type chessApiClient struct {
@@ -36,7 +37,7 @@ func NewChessApiClient(cc grpc.ClientConnInterface) ChessApiClient {
 
 func (c *chessApiClient) MakeMove(ctx context.Context, in *MakeMoveRequest, opts ...grpc.CallOption) (*MakeMoveResponse, error) {
 	out := new(MakeMoveResponse)
-	err := c.cc.Invoke(ctx, "/ChessApi/MakeMove", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/pb.ChessApi/MakeMove", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -45,7 +46,16 @@ func (c *chessApiClient) MakeMove(ctx context.Context, in *MakeMoveRequest, opts
 
 func (c *chessApiClient) NewGame(ctx context.Context, in *NewGameRequest, opts ...grpc.CallOption) (*NewGameResponse, error) {
 	out := new(NewGameResponse)
-	err := c.cc.Invoke(ctx, "/ChessApi/NewGame", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/pb.ChessApi/NewGame", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *chessApiClient) Ping(ctx context.Context, in *PingRequest, opts ...grpc.CallOption) (*PingResponse, error) {
+	out := new(PingResponse)
+	err := c.cc.Invoke(ctx, "/pb.ChessApi/Ping", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -58,6 +68,7 @@ func (c *chessApiClient) NewGame(ctx context.Context, in *NewGameRequest, opts .
 type ChessApiServer interface {
 	MakeMove(context.Context, *MakeMoveRequest) (*MakeMoveResponse, error)
 	NewGame(context.Context, *NewGameRequest) (*NewGameResponse, error)
+	Ping(context.Context, *PingRequest) (*PingResponse, error)
 	mustEmbedUnimplementedChessApiServer()
 }
 
@@ -70,6 +81,9 @@ func (UnimplementedChessApiServer) MakeMove(context.Context, *MakeMoveRequest) (
 }
 func (UnimplementedChessApiServer) NewGame(context.Context, *NewGameRequest) (*NewGameResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method NewGame not implemented")
+}
+func (UnimplementedChessApiServer) Ping(context.Context, *PingRequest) (*PingResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Ping not implemented")
 }
 func (UnimplementedChessApiServer) mustEmbedUnimplementedChessApiServer() {}
 
@@ -94,7 +108,7 @@ func _ChessApi_MakeMove_Handler(srv interface{}, ctx context.Context, dec func(i
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/ChessApi/MakeMove",
+		FullMethod: "/pb.ChessApi/MakeMove",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ChessApiServer).MakeMove(ctx, req.(*MakeMoveRequest))
@@ -112,10 +126,28 @@ func _ChessApi_NewGame_Handler(srv interface{}, ctx context.Context, dec func(in
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/ChessApi/NewGame",
+		FullMethod: "/pb.ChessApi/NewGame",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ChessApiServer).NewGame(ctx, req.(*NewGameRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ChessApi_Ping_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PingRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ChessApiServer).Ping(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/pb.ChessApi/Ping",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ChessApiServer).Ping(ctx, req.(*PingRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -124,7 +156,7 @@ func _ChessApi_NewGame_Handler(srv interface{}, ctx context.Context, dec func(in
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var ChessApi_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "ChessApi",
+	ServiceName: "pb.ChessApi",
 	HandlerType: (*ChessApiServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -134,6 +166,10 @@ var ChessApi_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "NewGame",
 			Handler:    _ChessApi_NewGame_Handler,
+		},
+		{
+			MethodName: "Ping",
+			Handler:    _ChessApi_Ping_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

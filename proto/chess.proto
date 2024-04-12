@@ -1,10 +1,17 @@
 syntax = "proto3";
 
+package pb;
 option go_package = ".;pb";
 
 
 message MakeMoveRequest {
-    string body = 1;
+    Game game = 1;
+    Move move = 2;
+}
+
+message Move {
+    Square from = 1;
+    Square to = 2;
 }
 
 message MakeMoveResponse {
@@ -16,10 +23,68 @@ message NewGameRequest {
 }
 
 message NewGameResponse {
-    string body  = 1;
+    Game game = 1;
 }
+
+message PingRequest {
+}
+
+message PingResponse {
+    string response = 1;
+}
+
+message Player {
+    string ID = 1;
+    string name = 2;
+}
+
+message Game {
+    uint32 ID = 1;
+    Player playerOne = 2;
+    Player playerTwo = 3;
+    Board board = 4;
+}
+
+message Board {
+    repeated Square squares = 1;
+}
+
+message Square {
+    SquarePosition pos = 1;
+    Color color = 2;    
+    Piece piece = 3;
+}
+
+message SquarePosition {
+    uint32 x = 1;
+    uint32 y = 2;    
+}
+
+enum Color {
+    white = 0;
+    black = 1;
+}
+
+enum Piece {
+    nil = 0;
+    wPawn = 1;
+    bPawn = 2;
+    wRook = 3;
+    bRook = 4;
+    wKnight = 5;
+    bKnight = 6;
+    wBishop = 7;
+    bBishop = 8;
+    wKing = 9;
+    bKing = 10;
+    wQueen = 11;
+    bQueen = 12;
+}
+
+
 
 service ChessApi {
     rpc MakeMove(MakeMoveRequest) returns (MakeMoveResponse) {};
     rpc NewGame(NewGameRequest) returns (NewGameResponse) {};
+    rpc Ping(PingRequest) returns (PingResponse) {};
 }
