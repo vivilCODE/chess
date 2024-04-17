@@ -11,11 +11,11 @@ import (
 	"google.golang.org/grpc/reflection"
 )
 
-type myChessApi struct {
+type ChessApi struct {
 	pb.UnimplementedChessApiServer
 }
 
-func (c *myChessApi) NewGame(context.Context, *pb.NewGameRequest) (*pb.NewGameResponse, error) {
+func (c *ChessApi) NewGame(context.Context, *pb.NewGameRequest) (*pb.NewGameResponse, error) {
 	var squares = []*pb.Square{
 		{
 			Pos: &pb.SquarePosition{X: 1, Y: 1},
@@ -357,7 +357,46 @@ func (c *myChessApi) NewGame(context.Context, *pb.NewGameRequest) (*pb.NewGameRe
 	return &pb.NewGameResponse{Game: game}, nil
 }
 
-func (c *myChessApi) Ping(ctx context.Context, req *pb.PingRequest) (*pb.PingResponse, error) {
+func (c *ChessApi) MakeMove(ctx context.Context, req *pb.MakeMoveRequest) (*pb.MakeMoveResponse, error) {
+	fmt.Println("make move request hit the server")
+	
+	game:= req.Game
+
+	fromPosition := req.Move.From.Pos
+	toPosition := req.Move.To.Pos
+
+	pieceOnFromSquare := req.Move.From.Piece
+	pieceOnToSquare := req.Move.To.Piece
+
+	fmt.Printf("%v from %v to %v, capturing %v\n", pieceOnFromSquare, fromPosition, toPosition, pieceOnToSquare)
+
+	for _, sq := range game.Board.Squares {
+		if sq.Pos.GetX() == fromPosition.GetX() && sq.Pos.GetY() == fromPosition.GetY() {
+			fmt.Printf("found fromposition: %v\n", sq)
+			sq.Piece = pb.Piece_nil
+		}
+		if sq.Pos.GetX() == toPosition.GetX() && sq.Pos.GetY() == toPosition.GetY() {
+			fmt.Printf("found toosition: %v\n", sq)
+			sq.Piece = pieceOnFromSquare
+		}
+	}
+
+	
+	for _, sq := range game.Board.Squares {
+		if sq.Pos.GetX() == fromPosition.GetX() && sq.Pos.GetY() == fromPosition.GetY() {
+			fmt.Printf("found fromposition2: %v\n", sq)
+		}
+		if sq.Pos.GetX() == toPosition.GetX() && sq.Pos.GetY() == toPosition.GetY() {
+			fmt.Printf("found toosition2: %v\n", sq)
+		}
+	}
+
+	
+
+	return &pb.MakeMoveResponse{Game: game}, nil
+}
+
+func (c *ChessApi) Ping(ctx context.Context, req *pb.PingRequest) (*pb.PingResponse, error) {
 	fmt.Println("ping request hit server")
 	return &pb.PingResponse{Response: "up and running :)"}, nil
 }
@@ -375,7 +414,7 @@ func main() {
 	reflection.Register(grpcServer)
 
 	// Register chess api
-	api := &myChessApi{}
+	api := &ChessApi{}
 	pb.RegisterChessApiServer(grpcServer, api)
 
 	// Serve grpc

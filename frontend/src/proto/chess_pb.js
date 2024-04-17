@@ -723,7 +723,7 @@ proto.pb.MakeMoveResponse.prototype.toObject = function(opt_includeInstance) {
  */
 proto.pb.MakeMoveResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    body: jspb.Message.getFieldWithDefault(msg, 1, "")
+    game: (f = msg.getGame()) && proto.pb.Game.toObject(includeInstance, f)
   };
 
   if (includeInstance) {
@@ -761,8 +761,9 @@ proto.pb.MakeMoveResponse.deserializeBinaryFromReader = function(msg, reader) {
     var field = reader.getFieldNumber();
     switch (field) {
     case 1:
-      var value = /** @type {string} */ (reader.readString());
-      msg.setBody(value);
+      var value = new proto.pb.Game;
+      reader.readMessage(value,proto.pb.Game.deserializeBinaryFromReader);
+      msg.setGame(value);
       break;
     default:
       reader.skipField();
@@ -793,31 +794,51 @@ proto.pb.MakeMoveResponse.prototype.serializeBinary = function() {
  */
 proto.pb.MakeMoveResponse.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getBody();
-  if (f.length > 0) {
-    writer.writeString(
+  f = message.getGame();
+  if (f != null) {
+    writer.writeMessage(
       1,
-      f
+      f,
+      proto.pb.Game.serializeBinaryToWriter
     );
   }
 };
 
 
 /**
- * optional string body = 1;
- * @return {string}
+ * optional Game game = 1;
+ * @return {?proto.pb.Game}
  */
-proto.pb.MakeMoveResponse.prototype.getBody = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
+proto.pb.MakeMoveResponse.prototype.getGame = function() {
+  return /** @type{?proto.pb.Game} */ (
+    jspb.Message.getWrapperField(this, proto.pb.Game, 1));
 };
 
 
 /**
- * @param {string} value
+ * @param {?proto.pb.Game|undefined} value
+ * @return {!proto.pb.MakeMoveResponse} returns this
+*/
+proto.pb.MakeMoveResponse.prototype.setGame = function(value) {
+  return jspb.Message.setWrapperField(this, 1, value);
+};
+
+
+/**
+ * Clears the message field making it undefined.
  * @return {!proto.pb.MakeMoveResponse} returns this
  */
-proto.pb.MakeMoveResponse.prototype.setBody = function(value) {
-  return jspb.Message.setProto3StringField(this, 1, value);
+proto.pb.MakeMoveResponse.prototype.clearGame = function() {
+  return this.setGame(undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {boolean}
+ */
+proto.pb.MakeMoveResponse.prototype.hasGame = function() {
+  return jspb.Message.getField(this, 1) != null;
 };
 
 

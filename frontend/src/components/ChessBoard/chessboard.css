@@ -6,17 +6,3 @@
   grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
   margin: auto;
 }
-
-.chess-board__square--white,
-.chess-board__square--black {
-  width: 100%;
-  height: 100%;
-}
-
-.chess-board__square--white {
-  background-color: rgb(231, 189, 122);
-}
-
-.chess-board__square--black {
-  background-color: rgb(93, 59, 18);
-}

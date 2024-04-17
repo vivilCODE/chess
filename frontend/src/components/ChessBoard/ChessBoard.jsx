@@ -1,55 +1,36 @@
 import "./chessboard.css";
-import { Color } from "../../proto/chess_pb";
 import { useEffect, useState } from "react";
+import { ChessBoardSquare } from "../ChessBoardSquare/ChessBoardSquare";
 
-const squareToLi = (square) => {
-  let className =
-    square.color === 0
-      ? "chess-board__square--white"
-      : "chess-board__square--black";
-  let x = square.pos.x;
-  let y = square.pos.y;
-  return (
-    <li className={className}>
-      x: {x}, y: {y}
-    </li>
-  );
-};
-
-const getRow = (squares, number) => {
-  return squares.map((sq) => {
-    if (sq.pos.y === number) {
-      return squareToLi(sq);
-    }
-  });
-};
-
-const getSquares = (squares) => {
-  let rows = [];
-  for (let i = 1; i <= 8; i++) {
-    let row = getRow(squares, i);
-    rows.unshift(row);
-  }
-  return rows;
-};
-
-export default function ChessBoard(props) {
+// The board gets passed a 'game' object, which contains all information needed to render the board.
+export const ChessBoard = (props) => {
   const [squares, setSquares] = useState();
-  const { game } = props;
+  const { game, selectedSquares, setSelectedSquares } = props;
 
-  const renderBoard = () => {
-    if (game === null) {
-      return;
-    }
-
-    let squares = getSquares(game.board.squares);
-    console.log(squares);
-    setSquares(() => squares);
-  };
-
+  // Re-renders the board every time a game update occurs or selected squares changes.
   useEffect(() => {
-    renderBoard();
-  }, [game]);
+    const getSquares = (squareList) => {
+      let squares = [];
+      for (let i = 1; i <= 8; i++) {
+        let rawRow = squareList.filter((sq) => sq.pos.y === i);
+        let row = rawRow.map((sq) => {
+          return (
+            <ChessBoardSquare
+              key={"x:" + sq.pos.x + "y:" + sq.pos.y}
+              square={sq}
+              selectedSquares={selectedSquares}
+              setSelectedSquares={setSelectedSquares}
+            />
+          );
+        });
+        squares.unshift(row);
+      }
+      return squares;
+    };
+
+    let squares = getSquares(game.board.squaresList);
+    setSquares(() => squares);
+  }, [game, selectedSquares, setSelectedSquares]);
 
   return <ul className="chess-board">{squares}</ul>;
-}
+};

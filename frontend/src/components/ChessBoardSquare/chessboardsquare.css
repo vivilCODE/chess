@@ -1,0 +1,25 @@
+.chess-board__square--white,
+.chess-board__square--black {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+}
+
+.chess-board__square--white {
+  background-color: rgb(231, 189, 122);
+}
+
+.chess-board__square--black {
+  background-color: rgb(93, 59, 18);
+}
+
+.square--selected {
+  background-color: rgb(207, 86, 86);
+}
+
+.chess-board__square__piece-img {
+  max-width: 100%;
+  max-height: 100%;
+}

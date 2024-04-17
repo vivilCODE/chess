@@ -1,0 +1,17 @@
+version: "3"
+
+services:
+  frontend:
+    build: ./frontend
+    ports:
+      - "8000:3000"
+
+  envoy:
+    build: ./
+    ports:
+      - "8081:8000"
+
+  chessapi:
+    build: ./chessapi
+    ports:
+      - "8080:8080"

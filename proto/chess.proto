@@ -15,7 +15,7 @@ message Move {
 }
 
 message MakeMoveResponse {
-    string body = 1;
+    Game game = 1;
 }
 
 message NewGameRequest {

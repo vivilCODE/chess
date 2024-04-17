@@ -4,7 +4,7 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 // Reset all default styles
 import "./styles/css-reset.css";
-import LandingPage from "./pages/LandingPage";
+import { LandingPage } from "./pages/LandingPage";
 
 const router = createBrowserRouter([
   {
