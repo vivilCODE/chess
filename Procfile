@@ -1,0 +1,1 @@
+startup: make compose-up
