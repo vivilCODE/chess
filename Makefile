@@ -31,15 +31,11 @@ pingserver:
 pingenvoy: 
 	grpcurl --plaintext localhost:8081 pb.ChessApi/Ping
 
-
-	
-
 startserver: 
 	go run ./chessapi/server.go
 
 startfrontend: 
 	cd ./frontend && npm start
-
 
 compose-up: 
 	docker-compose up

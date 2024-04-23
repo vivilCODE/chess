@@ -1,5 +1,5 @@
 import { ChessApiClient } from "../proto/chess_grpc_web_pb";
-import { PingRequest, NewGameRequest } from "../proto/chess_pb";
+import { PingRequest } from "../proto/chess_pb";
 import * as parser from "./parser";
 const EnvoyURL = "http://localhost:8081";
 const client = new ChessApiClient(EnvoyURL);
