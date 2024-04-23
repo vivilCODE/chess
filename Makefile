@@ -7,19 +7,19 @@ protoclean:
 	rm ./frontend/src/proto/*.js
 
 buildenvoy: 
-	docker build -t chessapp-envoyimage:latest -f ./build/envoy/Dockerfile .
+	docker build -t chessapp-envoyimage:latest -f Dockerfile .
 
 runenvoy: 
 	docker run -d -p 8081:8000 --name chessapp-envoy chessapp-envoyimage
 
 buildfrontend: 
-	docker build -t chessapp-frontendimage:latest -f ./build/frontend/Dockerfile .
+	docker build -t chessapp-frontendimage:latest -f ./frontend/Dockerfile ./frontend
 
 runfrontend:
 	docker run -d -p 8000:3000 --name chessapp-frontend chessapp-frontendimage:latest
 
 buildchessapi: 
-	docker build -t chessapp-chessapiimage:latest -f ./build/chessapi/Dockerfile .
+	docker build -t chessapp-chessapiimage:latest -f ./chessapi/Dockerfile ./chessapi
 
 runchessapi:
 	docker run -d -p 8080:8080 --name chessapp-chessapi chessapp-chessapiimage:latest
@@ -32,10 +32,10 @@ pingenvoy:
 	grpcurl --plaintext localhost:8081 pb.ChessApi/Ping
 
 startserver: 
-	go run ./chessapi/server.go
+	 go run ./chessapi/server.go
 
 startfrontend: 
 	cd ./frontend && npm start
 
 compose-up: 
-	docker-compose up
+	docker-compose up --build
