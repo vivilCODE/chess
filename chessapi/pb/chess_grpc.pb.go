@@ -25,6 +25,7 @@ type ChessApiClient interface {
 	MakeMove(ctx context.Context, in *MakeMoveRequest, opts ...grpc.CallOption) (*MakeMoveResponse, error)
 	NewGame(ctx context.Context, in *NewGameRequest, opts ...grpc.CallOption) (*NewGameResponse, error)
 	Ping(ctx context.Context, in *PingRequest, opts ...grpc.CallOption) (*PingResponse, error)
+	SignIn(ctx context.Context, in *SignInRequest, opts ...grpc.CallOption) (*SignInResponse, error)
 }
 
 type chessApiClient struct {
@@ -62,6 +63,15 @@ func (c *chessApiClient) Ping(ctx context.Context, in *PingRequest, opts ...grpc
 	return out, nil
 }
 
+func (c *chessApiClient) SignIn(ctx context.Context, in *SignInRequest, opts ...grpc.CallOption) (*SignInResponse, error) {
+	out := new(SignInResponse)
+	err := c.cc.Invoke(ctx, "/pb.ChessApi/SignIn", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ChessApiServer is the server API for ChessApi service.
 // All implementations must embed UnimplementedChessApiServer
 // for forward compatibility
@@ -69,6 +79,7 @@ type ChessApiServer interface {
 	MakeMove(context.Context, *MakeMoveRequest) (*MakeMoveResponse, error)
 	NewGame(context.Context, *NewGameRequest) (*NewGameResponse, error)
 	Ping(context.Context, *PingRequest) (*PingResponse, error)
+	SignIn(context.Context, *SignInRequest) (*SignInResponse, error)
 	mustEmbedUnimplementedChessApiServer()
 }
 
@@ -84,6 +95,9 @@ func (UnimplementedChessApiServer) NewGame(context.Context, *NewGameRequest) (*N
 }
 func (UnimplementedChessApiServer) Ping(context.Context, *PingRequest) (*PingResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Ping not implemented")
+}
+func (UnimplementedChessApiServer) SignIn(context.Context, *SignInRequest) (*SignInResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SignIn not implemented")
 }
 func (UnimplementedChessApiServer) mustEmbedUnimplementedChessApiServer() {}
 
@@ -152,6 +166,24 @@ func _ChessApi_Ping_Handler(srv interface{}, ctx context.Context, dec func(inter
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ChessApi_SignIn_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SignInRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ChessApiServer).SignIn(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/pb.ChessApi/SignIn",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ChessApiServer).SignIn(ctx, req.(*SignInRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ChessApi_ServiceDesc is the grpc.ServiceDesc for ChessApi service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -170,6 +202,10 @@ var ChessApi_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Ping",
 			Handler:    _ChessApi_Ping_Handler,
+		},
+		{
+			MethodName: "SignIn",
+			Handler:    _ChessApi_SignIn_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

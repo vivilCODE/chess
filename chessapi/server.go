@@ -2,17 +2,24 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"log"
 	"net"
+	"net/http"
 	"os"
+	"strings"
+	"time"
 
 	"github.com/joho/godotenv"
 	"github.com/kouhin/envflag"
 	_ "github.com/lib/pq"
-	"github.com/vivilCODE/chess/chessapi/dbcontroller"
+
 	pb "github.com/vivilCODE/chess/chessapi/pb"
+	"github.com/vivilCODE/chess/db/models"
+	"golang.org/x/oauth2"
+	"golang.org/x/oauth2/google"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
@@ -27,7 +34,7 @@ func generateBoard() (*pb.Board) {
 
 	for y:=1; y<=8; y++ {
 		for x:= 1; x<=8; x++ {
-			piece := pb.Piece_nil
+			piece := pb.Piece_pieceNil
 			color:= pb.Color_white
 			
 			if isOdd(y) && isOdd(x) || 
@@ -83,10 +90,58 @@ func generateBoard() (*pb.Board) {
 	}
 }
 
-
 type ChessApi struct {
 	pb.UnimplementedChessApiServer
-	dbcontroller *dbcontroller.DBController
+	gapiClientID string
+	gapiClientSecret string
+}
+
+func (c *ChessApi) SignIn(ctx context.Context, req *pb.SignInRequest) (*pb.SignInResponse, error) {
+	code := req.GetCode()
+	context := context.Background()
+
+	conf := &oauth2.Config{
+		ClientID: c.gapiClientID,
+		ClientSecret: c.gapiClientSecret,
+		Scopes: []string{"https://www.googleapis.com/auth/userinfo.profile", "https://www.googleapis.com/auth/userinfo.email"},
+		// Scopes: []string{"./auth/userinfo.email", "./auth/userinfo.profile"},
+		RedirectURL: "http://localhost:3000/signin",
+		Endpoint: google.Endpoint,
+	}
+
+
+	token, err :=	conf.Exchange(context, code)
+	if err != nil {
+		log.Fatal("unable to exchange code:", err)
+	}
+
+	client := conf.Client(context, token)
+
+	res, err :=	client.Get("https://www.googleapis.com/oauth2/v2/userinfo")
+	if err != nil {
+		fmt.Printf("unable to get userinfo: %v\n", err)
+		return nil, nil
+	}
+	defer res.Body.Close()
+
+	var user models.User
+
+	if err := json.NewDecoder(res.Body).Decode(&user); err != nil {
+		fmt.Printf("unable to decode userinfo: %v", err)
+		return nil,nil
+	}
+
+	user.SignedUp = time.Now()
+	var pbUser =  pb.User{
+		ID: user.Id,
+		Name: strings.Split(user.Email, "@")[0],
+		Email: user.Email,
+	}
+
+	// HTTP CALL TO DB SERVICE TO CREATE USER
+
+	fmt.Println("sign in requested")
+	return &pb.SignInResponse{User: &pbUser}, nil
 }
 
 func (c *ChessApi) NewGame(context.Context, *pb.NewGameRequest) (*pb.NewGameResponse, error) {
@@ -103,40 +158,20 @@ func (c *ChessApi) NewGame(context.Context, *pb.NewGameRequest) (*pb.NewGameResp
 }
 
 func (c *ChessApi) MakeMove(ctx context.Context, req *pb.MakeMoveRequest) (*pb.MakeMoveResponse, error) {
-	fmt.Println("make move request hit the server")
-	
-	game:= req.Game
-
+	game := req.Game
 	fromPosition := req.Move.From.Pos
 	toPosition := req.Move.To.Pos
 
 	pieceOnFromSquare := req.Move.From.Piece
-	pieceOnToSquare := req.Move.To.Piece
-
-	fmt.Printf("%v from %v to %v, capturing %v\n", pieceOnFromSquare, fromPosition, toPosition, pieceOnToSquare)
-
+	
 	for _, sq := range game.Board.Squares {
 		if sq.Pos.GetX() == fromPosition.GetX() && sq.Pos.GetY() == fromPosition.GetY() {
-			fmt.Printf("found fromposition: %v\n", sq)
-			sq.Piece = pb.Piece_nil
+			sq.Piece = pb.Piece_pieceNil
 		}
 		if sq.Pos.GetX() == toPosition.GetX() && sq.Pos.GetY() == toPosition.GetY() {
-			fmt.Printf("found toosition: %v\n", sq)
 			sq.Piece = pieceOnFromSquare
 		}
 	}
-
-	
-	for _, sq := range game.Board.Squares {
-		if sq.Pos.GetX() == fromPosition.GetX() && sq.Pos.GetY() == fromPosition.GetY() {
-			fmt.Printf("found fromposition2: %v\n", sq)
-		}
-		if sq.Pos.GetX() == toPosition.GetX() && sq.Pos.GetY() == toPosition.GetY() {
-			fmt.Printf("found toosition2: %v\n", sq)
-		}
-	}
-
-	
 
 	return &pb.MakeMoveResponse{Game: game}, nil
 }
@@ -148,43 +183,23 @@ func (c *ChessApi) Ping(ctx context.Context, req *pb.PingRequest) (*pb.PingRespo
 
 func main() {
 	httpPort := flag.String("port", ":8080", "Address for listening to http requests")
-	dbPort := flag.Int("dbport", 5432, "Postgres address")
-	host := flag.String("host", "localhost", "Where to host the http endpoint")
-
-
-
+	dbAddress := flag.String("dbaddress", "localhost:8082", "Address for communicating with db")
+	
 	if err := envflag.Parse(); err != nil {
 		log.Fatalf("unable to parse flags, %v", err)
 	}
 
 	err := godotenv.Load()
 	if err != nil {
-		fmt.Printf("Failed to load .env file: %v", err)
+		log.Fatalf("Failed to load .env file: %v", err)
 	}
 
-	dbUser := os.Getenv("DB_USER")
-	dbUserPassword := os.Getenv("DB_USER_PASSWORD")
-	dbName := os.Getenv("DB_NAME")
-
-
-	databaseConfig := dbcontroller.Config{
-		DBPort:   *dbPort,
-		DBName:   dbName,
-		Host:     *host,
-		User:     dbUser,
-		Password: *&dbUserPassword,
+	if err := pingDatabase(*dbAddress); err != nil {
+		log.Fatalf("unable to reach database service: %v\n", err)
 	}
 
-	dbc, err := dbcontroller.New(databaseConfig)
-	if err != nil {
-		log.Fatalf("unable to initialise database controller: %v", err)
-		return
-	}
-
-	if err = dbc.Connect(); err != nil {
-		log.Fatalf("unable to connect to database: %v", err)
-	}
-	defer dbc.Disconnect()
+	gapiClientID:= 	os.Getenv("GAPI_CLIENT_ID")
+	gapiClientSecret := os.Getenv("GAPI_CLIENT_SECRET")
 
 	// Set up listener to a port
 	lis, err := net.Listen("tcp", *httpPort)
@@ -199,7 +214,8 @@ func main() {
 
 	// Register chess api
 	api := &ChessApi{
-		dbcontroller: dbc,
+		gapiClientID: gapiClientID,
+		gapiClientSecret: gapiClientSecret,
 	}
 	pb.RegisterChessApiServer(grpcServer, api)
 
@@ -207,4 +223,19 @@ func main() {
 	if err := grpcServer.Serve(lis); err != nil {
 		log.Fatalf("Failed to serve grpc: %v", err)
 	}
+}
+
+
+
+func pingDatabase(address string) error {
+	res, err := http.Get(address)
+	if err != nil {
+		return err
+	}
+
+	if res.StatusCode != http.StatusOK {
+		return fmt.Errorf("received non 200 response: %v", res.StatusCode)
+	}
+
+	return nil
 }
