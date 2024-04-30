@@ -257,5 +257,66 @@ proto.pb.ChessApiPromiseClient.prototype.ping =
 };
 
 
+/**
+ * @const
+ * @type {!grpc.web.MethodDescriptor<
+ *   !proto.pb.SignInRequest,
+ *   !proto.pb.SignInResponse>}
+ */
+const methodDescriptor_ChessApi_SignIn = new grpc.web.MethodDescriptor(
+  '/pb.ChessApi/SignIn',
+  grpc.web.MethodType.UNARY,
+  proto.pb.SignInRequest,
+  proto.pb.SignInResponse,
+  /**
+   * @param {!proto.pb.SignInRequest} request
+   * @return {!Uint8Array}
+   */
+  function(request) {
+    return request.serializeBinary();
+  },
+  proto.pb.SignInResponse.deserializeBinary
+);
+
+
+/**
+ * @param {!proto.pb.SignInRequest} request The
+ *     request proto
+ * @param {?Object<string, string>} metadata User defined
+ *     call metadata
+ * @param {function(?grpc.web.RpcError, ?proto.pb.SignInResponse)}
+ *     callback The callback function(error, response)
+ * @return {!grpc.web.ClientReadableStream<!proto.pb.SignInResponse>|undefined}
+ *     The XHR Node Readable Stream
+ */
+proto.pb.ChessApiClient.prototype.signIn =
+    function(request, metadata, callback) {
+  return this.client_.rpcCall(this.hostname_ +
+      '/pb.ChessApi/SignIn',
+      request,
+      metadata || {},
+      methodDescriptor_ChessApi_SignIn,
+      callback);
+};
+
+
+/**
+ * @param {!proto.pb.SignInRequest} request The
+ *     request proto
+ * @param {?Object<string, string>=} metadata User defined
+ *     call metadata
+ * @return {!Promise<!proto.pb.SignInResponse>}
+ *     Promise that resolves to the response
+ */
+proto.pb.ChessApiPromiseClient.prototype.signIn =
+    function(request, metadata) {
+  return this.client_.unaryCall(this.hostname_ +
+      '/pb.ChessApi/SignIn',
+      request,
+      metadata || {},
+      methodDescriptor_ChessApi_SignIn);
+};
+
+
 module.exports = proto.pb;
 

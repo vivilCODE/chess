@@ -4,44 +4,15 @@ package pb;
 option go_package = ".;pb";
 
 
-message MakeMoveRequest {
-    Game game = 1;
-    Move move = 2;
-}
-
 message Move {
     Square from = 1;
     Square to = 2;
 }
 
-message MakeMoveResponse {
-    Game game = 1;
-}
-
-message NewGameRequest {
-    string body = 1;
-}
-
-message NewGameResponse {
-    Game game = 1;
-}
-
-message PingRequest {
-}
-
-message PingResponse {
-    string response = 1;
-}
-
-message Player {
-    string ID = 1;
-    string name = 2;
-}
-
 message Game {
     uint32 ID = 1;
-    Player playerOne = 2;
-    Player playerTwo = 3;
+    User playerOne = 2;
+    User playerTwo = 3;
     Board board = 4;
 }
 
@@ -66,7 +37,7 @@ enum Color {
 }
 
 enum Piece {
-    nil = 0;
+    pieceNil = 0;
     wPawn = 1;
     bPawn = 2;
     wRook = 3;
@@ -81,10 +52,49 @@ enum Piece {
     bQueen = 12;
 }
 
+message User {
+    string ID = 1;
+    string name = 2;
+    string email = 3;
+}
+
+message PingRequest {
+}
+
+message PingResponse {
+    string response = 1;
+}
+
+message MakeMoveRequest {
+    Game game = 1;
+    Move move = 2;
+}
+
+message MakeMoveResponse {
+    Game game = 1;
+}
+
+message NewGameRequest {
+    string body = 1;
+}
+
+message NewGameResponse {
+    Game game = 1;
+}
+
+message SignInRequest {
+    string code = 1;
+}
+
+message SignInResponse {
+    User user = 1;
+}
+
 
 
 service ChessApi {
     rpc MakeMove(MakeMoveRequest) returns (MakeMoveResponse) {};
     rpc NewGame(NewGameRequest) returns (NewGameResponse) {};
     rpc Ping(PingRequest) returns (PingResponse) {};
+    rpc SignIn(SignInRequest) returns (SignInResponse) {};
 }

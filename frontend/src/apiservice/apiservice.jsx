@@ -38,3 +38,16 @@ export const MakeMove = (game, from, to) => {
     });
   });
 };
+
+export const SignIn = (code) => {
+  let req = parser.createSignInRequest(code);
+  return new Promise((resolve, reject) => {
+    client.signIn(req, {}, (err, response) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(response.toObject());
+      }
+    });
+  });
+};

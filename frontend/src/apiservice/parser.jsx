@@ -1,6 +1,7 @@
 import {
   MakeMoveRequest,
   NewGameRequest,
+  SignInRequest,
   Game,
   Square,
   SquarePosition,
@@ -45,6 +46,13 @@ export const objectGameToPb = (game) => {
 
 export const createNewGameRequest = () => {
   let req = new NewGameRequest();
+  return req;
+};
+
+export const createSignInRequest = (code) => {
+  let req = new SignInRequest();
+  req.setCode(code);
+
   return req;
 };
 
