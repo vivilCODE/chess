@@ -2,6 +2,7 @@ package dbservice
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 
 	"github.com/vivilCODE/chess/db/models"
@@ -10,6 +11,9 @@ import (
 var (
 	connectionString = "host=%s port=%d user=%s password=%s dbname=%s sslmode=disable"
 )
+
+
+var ErrorNoUserFound = errors.New("no user found with matching id")
 
 // DBService holds the connection to the database.
 // It has methods to query different data and parse them into models defined in the models package.
@@ -78,6 +82,27 @@ func (s *DBService) CreateUser(user models.User) (error) {
 
 	return nil
 }
+
+func (s *DBService) GetUser(id string) (models.User, error) {
+	getUserStatement := `SELECT id, name, email, signup_timestamp FROM "user" WHERE id = $1;`
+	
+	row :=s.conn.QueryRow(getUserStatement, id)
+		
+	var user = models.User{}
+
+	err := row.Scan(&user.Id, &user.Name, &user.Email, &user.SignedUp)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return models.User{}, ErrorNoUserFound
+		}
+
+		return models.User{}, fmt.Errorf("unexpected error scanning rows for user with id %s, err: %v", id, err)
+	}
+
+	return user, nil
+}
+
+
 
 
 // Func QueryChapterInfo takes a chapter_id and uses it to fetch all the information needed to create
