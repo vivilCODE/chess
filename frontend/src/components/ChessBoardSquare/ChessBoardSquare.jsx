@@ -20,18 +20,18 @@ const pieceEnumToString = {
 
 const pieceEnumToImgPath = {
   0: "",
-  1: "./pieces/white-pawn.jpg",
-  2: "./pieces/black-pawn.jpg",
-  3: "./pieces/white-rook.jpg",
-  4: "./pieces/black-rook.jpg",
-  5: "./pieces/white-knight.jpg",
-  6: "./pieces/black-knight.png",
-  7: "./pieces/white-bishop.jpg",
-  8: "./pieces/black-bishop.png",
-  9: "./pieces/white-king.jpg",
-  10: "./pieces/black-king.png",
-  11: "./pieces/white-queen.webp",
-  12: "./pieces/black-queen.jpg",
+  1: "./pieces/white-pawn.svg",
+  2: "./pieces/black-pawn.svg",
+  3: "./pieces/white-rook.svg",
+  4: "./pieces/black-rook.svg",
+  5: "./pieces/white-knight.svg",
+  6: "./pieces/black-knight.svg",
+  7: "./pieces/white-bishop.svg",
+  8: "./pieces/black-bishop.svg",
+  9: "./pieces/white-king.svg",
+  10: "./pieces/black-king.svg",
+  11: "./pieces/white-queen.svg",
+  12: "./pieces/black-queen.svg",
 };
 
 const thisSquareIsSelected = (selectedSquares, thisSquare) => {
