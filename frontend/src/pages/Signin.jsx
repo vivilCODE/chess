@@ -1,8 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
+import { useNavigate } from "react-router-dom";
 import * as apiService from "../apiservice/apiservice";
+import { UserContext } from "../index";
 
 export const Signin = () => {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useContext(UserContext);
+  const navigate = useNavigate();
 
   const queryParameters = new URLSearchParams(window.location.search);
   const code = queryParameters.get("code");
@@ -21,6 +24,7 @@ export const Signin = () => {
   useEffect(() => {
     if (user) {
       console.log("user: ", user);
+      navigate("/");
     }
   }, [user]);
 

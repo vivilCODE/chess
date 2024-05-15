@@ -39,16 +39,16 @@ func (h *DBHandler) GetUser(id string) (*models.User, error) {
 		return nil, fmt.Errorf("unable to read getuser response body: %v", err)	
 	}
 
-	var user *models.User
+	var user models.User
 
-	if err := json.Unmarshal(body, user); err != nil {
+	if err := json.Unmarshal(body, &user); err != nil {
 		return nil, fmt.Errorf("unable to unmarshal getuser response: %v", err)
 	}
 
 
 	fmt.Println("DBHANDLER GETUSER FUNC: fetched user", user) // debuglog
 
-	return user, nil
+	return &user, nil
 }
 
 func (h *DBHandler) PostUser(user *models.User) error {
