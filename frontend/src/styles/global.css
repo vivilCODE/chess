@@ -1,0 +1,27 @@
+body {
+  background-color: #efefef;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* Fonts */
+
+/*
+Player column name
+*/
+@font-face {
+  font-family: BebasNeueRegular;
+  src: url("../../public/fonts/BebasNeue/BebasNeue-Regular.ttf");
+}
+
+@font-face {
+  font-family: BebasNeueBold;
+  src: url("../../public/fonts/BebasNeue/BebasNeue-Bold.ttf");
+}
+
+@font-face {
+  font-family: PingFangSCRegular;
+  src: url("../../public/fonts/PingFangSC/PingFang-SC-Regular.ttf");
+}

@@ -1,6 +1,6 @@
 .chess-board {
-  width: 600px;
-  height: 600px;
+  width: 40vw;
+  height: 40vw;
   display: grid;
   grid-template-rows: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
   grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;

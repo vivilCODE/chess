@@ -1,0 +1,54 @@
+.player-column {
+  width: 20vw;
+  height: 40vw;
+  padding: 1em 2em;
+  background-color: #ffffff;
+}
+
+.player-column__player-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.player-column__player-info__profile-picture {
+  width: 40%;
+  border-radius: 50%;
+  margin: 1.5em 0;
+}
+
+.player-column__player-info__name {
+  font-family: BebasNeueBold;
+  font-size: 2em;
+  font-weight: 700;
+}
+
+.player-column__player-info__color {
+  font-family: PingFangSCRegular;
+  margin-top: 0.5em;
+}
+
+.player-column__moves-list {
+  margin: 1em 0;
+  padding: 1em 0;
+  border-top: 1px solid rgb(0, 0, 0, 0.12);
+  border-bottom: 1px solid rgb(0, 0, 0, 0.12);
+}
+
+.player-column__timer {
+  font-family: BebasNeueBold;
+  color: rgb(34, 34, 34, 0.17);
+  display: block;
+  font-size: 7vw;
+  text-align: center;
+}
+
+.player-column__resign-btn {
+  font-family: BebasNeueBold;
+  color: #9288ff;
+  border: 2px solid #9288ff;
+  background-color: #ffffff;
+  width: 100%;
+  padding: 0.5em;
+  font-size: 1.4em;
+}

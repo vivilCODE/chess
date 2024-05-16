@@ -1,0 +1,32 @@
+.player-column__moves-list__move {
+  display: flex;
+  justify-content: space-between;
+  margin: 0.2em 0;
+}
+
+.player-column__moves-list__move__left,
+.player-column__moves-list__move__right {
+  display: flex;
+  align-items: center;
+}
+
+.player-column__moves-list__move__left__number {
+  font-family: PingFangSCRegular;
+}
+
+.player-column__moves-list__move__left__piece-icon {
+  width: 1.2vw;
+  margin: 0 0.5em;
+}
+
+.player-column__moves-list__move__left__move-name {
+  font-family: PingFangSCRegular;
+}
+
+.player-column__moves-list__move__right__opponent-move {
+  font-family: PingFangSCRegular;
+  color: #b6b6b6;
+  background-color: #f3f3f3;
+  padding: 0.4em;
+  border-radius: 0.4em;
+}

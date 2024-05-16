@@ -1,0 +1,4 @@
+.game-window {
+  display: flex;
+  justify-content: space-between;
+}

@@ -7,6 +7,9 @@ import { useState, createContext } from "react";
 // Reset all default styles
 import "./styles/css-reset.css";
 
+// Set global style rules
+import "./styles/global.css";
+
 import { LandingPage } from "./pages/LandingPage";
 import { Signin } from "./pages/Signin";
 
