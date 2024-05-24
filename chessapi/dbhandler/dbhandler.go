@@ -11,7 +11,7 @@ import (
 )
 
 type DBHandler struct {
-	Config Config
+	Config *Config
 }
 
 type Config struct {

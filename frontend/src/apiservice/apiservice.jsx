@@ -4,11 +4,9 @@ import * as parser from "./parser";
 const EnvoyURL = "http://localhost:8081";
 const client = new ChessApiClient(EnvoyURL);
 
-export const Ping = () => {
-  const req = new PingRequest();
-  client.ping(req, {}, (err, response) => {
-    console.log(response.getResponse());
-  });
+export const Ping = async () => {
+  const res = await fetch("http://localhost:8080/chessapi/ping");
+  console.log(res);
 };
 
 export const NewGame = () => {
@@ -39,15 +37,25 @@ export const MakeMove = (game, from, to) => {
   });
 };
 
-export const SignIn = (code) => {
-  let req = parser.createSignInRequest(code);
-  return new Promise((resolve, reject) => {
-    client.signIn(req, {}, (err, response) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(response.toObject());
-      }
-    });
+export const SignIn = async (code) => {
+  console.log("json code: ", JSON.stringify({ code }));
+
+  const res = await fetch("http://localhost:8080/chessapi/auth/signin", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ code }),
   });
+
+  const data = await res.json();
+
+  if (res.ok) {
+    console.log("sign in request successful");
+  } else {
+    console.log("sign in request failed, err: ", data.error);
+    return data.error;
+  }
+
+  return data;
 };

@@ -1,0 +1,5 @@
+.chatbox__chat-log {
+  border: 1px solid gray;
+  width: 40vw;
+  min-height: 10vh;
+}

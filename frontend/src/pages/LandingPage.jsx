@@ -3,6 +3,7 @@ import { GameWindow } from "../partials/GameWindow";
 import { Login } from "../components/Login/Login";
 import { UserContext } from "../index";
 import { useContext, useEffect } from "react";
+import { Chatroom } from "../components/Chatroom/chatroom";
 
 export const LandingPage = () => {
   const [user, setUser] = useContext(UserContext);
@@ -19,6 +20,8 @@ export const LandingPage = () => {
 
       <button onClick={apiService.Ping}>Ping</button>
       <GameWindow />
+
+      <Chatroom />
     </div>
   );
 };

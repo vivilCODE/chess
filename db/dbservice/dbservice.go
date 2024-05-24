@@ -56,7 +56,7 @@ func (s *DBService) Connect() error {
 
 	s.conn = conn
 
-	fmt.Printf("successfully connected to %s\n", s.c.DBName)
+	fmt.Printf("successfully connected to %s database\n", s.c.DBName)
 
 	return nil
 }
