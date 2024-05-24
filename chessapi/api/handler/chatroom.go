@@ -7,19 +7,12 @@ import (
 
 	"github.com/gofiber/websocket/v2"
 	"github.com/vivilCODE/chess/chessapi/api/model"
+	"github.com/vivilCODE/chess/chessapi/log"
 )
 
 type Chatroom struct {
 	// clients hollds all current clients in this room
 	Clients map[*websocket.Conn]model.User
-
-	// join is a channel for clients wishing to join the room
-	// join chan *client
-
-	// leave chan *client
-
-	// incoming messages that should be sent to other users
-	// forward chan []byte
 
 	Mu sync.Mutex
 }
@@ -31,19 +24,22 @@ func NewChatroom() *Chatroom {
 }
 
 func (room *Chatroom) ChatroomHandler(c *websocket.Conn) {
-
-	fmt.Printf("received connection request to /chatroom")
+	log.Logger.Debug("received connection request to /chatroom")
+	
+	fmt.Printf("received connection request to /chatroom\n")
 		
 	_, message, err := c.ReadMessage()
 	if err != nil {
-		fmt.Printf("unable to read socket message, error: %v\n", err)
+		log.Logger.Error("unable to read socket message", "err", err)
+	
 		return
 	}
 
 	var user model.User
 
 	if err := json.Unmarshal(message, &user); err != nil {
-		fmt.Printf("unable to unmarshal user in first socket message, error: %v\n", err)
+		log.Logger.Error("unable to unmarshal user in first socket message", "err", err)
+	
 		return
 	}
 
@@ -53,7 +49,7 @@ func (room *Chatroom) ChatroomHandler(c *websocket.Conn) {
 	room.Mu.Unlock()
 
 	
-	fmt.Printf("new websocket connection established for user %v\n", user)
+	log.Logger.Debug("new websocket connection established for", "user", user)
 
 	defer func() {
 		// Remove the client from the chatroom on disconnect
@@ -67,16 +63,18 @@ func (room *Chatroom) ChatroomHandler(c *websocket.Conn) {
 	for {
 		messageType, message, err := c.ReadMessage()
 		if err != nil {
-			fmt.Println("Read error:", err)
+			log.Logger.Error("read error", "err", err)
+			
 			break
 		}
-		fmt.Printf("Received from %s: %s", user.Name, message)
-	
+
+		log.Logger.Debug("received", "message", message, "from", "user", user.Name)
+			
 		// Broadcast the message to all clients in the chatroom
 		room.Mu.Lock()
 		for client, _ := range room.Clients {
 			if err := client.WriteMessage(messageType, []byte(user.Name+": "+string(message))); err != nil {
-				fmt.Println("Write error:", err)
+				log.Logger.Error("write error", "err", err)
 			}
 		}
 

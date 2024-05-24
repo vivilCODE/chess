@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 
@@ -17,6 +16,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/vivilCODE/chess/chessapi/log"
 )
 
 func pingDatabase(address string) error {
@@ -32,23 +32,26 @@ func pingDatabase(address string) error {
 	return nil
 }
 
+
 func main() {
 	httpPort := flag.String("port", ":8080", "Address for listening to http requests")
 	dbAddress := flag.String("dbaddress", "localhost:8082", "Address for communicating with db")
-	
+
+	log.Logger.Info("starting chessapi")
+
 	if err := envflag.Parse(); err != nil {
-		log.Fatalf("unable to parse flags, %v", err)
+		log.Logger.Fatal("unable to parse flags", "err", err)
 	}
 
 	err := godotenv.Load()
 	if err != nil {
-		log.Fatalf("Failed to load .env file: %v", err)
+		log.Logger.Fatal("unable to load .env file", "err", err)
 	}
 
 	if err := pingDatabase(*dbAddress); err != nil {
-		log.Fatalf("unable to reach database service: %v\n", err)
+		log.Logger.Fatal("unable to reach database service", "err", err)
 	}
-	fmt.Println("successfully contacted database")
+	log.Logger.Info("successfully contacted database")
 
 	dbHandlerConfig := &dbhandler.Config{
 		Address: *dbAddress,
@@ -78,31 +81,6 @@ func main() {
 	router.SetupRoutes(app, chessapiConf)
 
 	if err := app.Listen(*httpPort); err != nil {
-		log.Fatalf("unable to serve chessapi on port %s, error: %v", *httpPort, err)
+		log.Logger.Fatal("unable to serve chessapi on", "port", *httpPort, "err", err)
 	}
-
-	// Set up listener to a port
-	// lis, err := net.Listen("tcp", *httpPort) // REMOVE
-	// if err != nil {
-	// 	log.Fatalf("Failed to listen on port %s: %v", *httpPort, err)
-	// }
-
-	// Initialise grpc server
-	// grpcServer := grpc.NewServer()	// REMOVE
-
-	// reflection.Register(grpcServer) //REMOVE
-
-	// Register chess api
-	// api := &api.ChessApi{ // REMOVE
-	// 	DBHandler: dbHandler,
-	// 	GapiClientID: gapiClientID,
-	// 	GapiClientSecret: gapiClientSecret,
-	// }
-	// pb.RegisterChessApiServer(grpcServer, api) //REMOVE
-
-	// Serve grpc
-	// fmt.Printf("started serving grpc on port %s\n", *httpPort)
-	// if err := grpcServer.Serve(lis); err != nil { //REMOVE
-	// 	log.Fatalf("Failed to serve grpc: %v", err)
-	// }
 }

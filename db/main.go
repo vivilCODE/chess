@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 
@@ -13,6 +12,7 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/kouhin/envflag"
 	"github.com/vivilCODE/chess/db/dbservice"
+	"github.com/vivilCODE/chess/db/log"
 	"github.com/vivilCODE/chess/db/models"
 )
 
@@ -23,12 +23,12 @@ func main() {
 
 
 	if err := envflag.Parse(); err != nil {
-		log.Fatalf("unable to parse flags, %v", err)
+		log.Logger.Fatal("unable to parse flags", "err", err)
 	}
 
 	err := godotenv.Load()
 	if err != nil {
-		fmt.Printf("Failed to load .env file: %v", err)
+		log.Logger.Fatal("unable to load .env file", "err", err)		
 	}
 
 	// Initialise database service
@@ -47,12 +47,12 @@ func main() {
 
 	service, err := dbservice.New(databaseConfig)
 	if err != nil {
-		log.Fatalf("unable to initialise database service: %v", err)
+		log.Logger.Fatal("unable to initialise database service", "err", err)
 		return
 	}
 
 	if err = service.Connect(); err != nil {
-		log.Fatalf("unable to connect to database: %v", err)
+		log.Logger.Fatal("unable to connect to database", "err", err)
 	}
 	defer service.Disconnect()
 
@@ -72,10 +72,10 @@ func main() {
 		}
 	
 		// Do something with the user object
-		fmt.Println("POSTUSER ENDPOINT: Received user:", user)
-
+		log.Logger.Debug("postuser endpoint received user", "user", user)
+	
 		if err := service.CreateUser(user); err != nil {
-			fmt.Printf("POSTUSER ENDPOINT: error creating user: %v", err)
+			log.Logger.Error("unable to create user", "err", err)
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()}) 
 		}
 
@@ -85,19 +85,20 @@ func main() {
 	app.Get("/db/users/:id", func(c *fiber.Ctx) error {
 		id:= c.Params("id")	
 
-		fmt.Println("GETUSER ENDPOINT: get user request received, id:", id)
-		
+		log.Logger.Debug("get user request received", "id", id)
 
 		user, err :=service.GetUser(id)
 		if err != nil {
 			switch err {
 			case dbservice.ErrorNoUserFound:
-				fmt.Printf("GETUSER ENDPOINT: no user found with id: %s\n", id) // debuglog
+				log.Logger.Debug("no user found with", "id", id)
 
 				c.Status(http.StatusNotFound)				
 				return nil
 			default:
-				fmt.Printf("GETUSER ENDPOINT: unexpected error: %v\n", err) // debuglog
+				log.Logger.Error("getus")
+
+				fmt.Printf("unexpected error in get user endpoint", "err",err) // debuglog
 
 				c.Status(http.StatusInternalServerError)
 			}
@@ -105,13 +106,15 @@ func main() {
 			return err
 		}
 
-		fmt.Printf("GETUSER ENDPOINT: user found: %v\n", user)
+		log.Logger.Debug("found user", "user", user)
 
 		c.JSON(user)
 
 		return nil
 	})
 	app.Get("/db/ping", func(c *fiber.Ctx) error {
+		log.Logger.Debug("received ping request")
+
 		c.SendString("pinged :)")
 		return nil
 	})

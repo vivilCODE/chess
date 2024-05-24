@@ -3,9 +3,10 @@ package handler
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"strings"
 	"time"
+
+	"github.com/vivilCODE/chess/chessapi/log"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/vivilCODE/chess/chessapi/api/model"
@@ -34,11 +35,12 @@ func NewSignInHandler(gapiID string, gapiSecret string, dbh *dbhandler.DBHandler
 
 
 func (h *SignInHandler) SignIn(c *fiber.Ctx) error {
-	fmt.Println("Sign in handler: sign in requested") // debuglog
-
+	log.Logger.Debug("sign in requested")
+	
 	var req model.SignInRequest
 	if err := c.BodyParser(&req); err != nil {
-		fmt.Printf("unable to parse sign in request body: %v\n", err)
+		log.Logger.Error("unable to parse sign in request body", "err", err)
+	
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid request"})
 	}
 
@@ -56,7 +58,8 @@ func (h *SignInHandler) SignIn(c *fiber.Ctx) error {
 	// Exchange the authorization code into a token
 	token, err := cfg.Exchange(context, req.Code)
 	if err != nil {
-		fmt.Printf("unable to exchange code: %v\n", err)
+		log.Logger.Error("unable to exchange code", "err", err)
+	
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Internal server error"})
 	}
 
@@ -66,7 +69,8 @@ func (h *SignInHandler) SignIn(c *fiber.Ctx) error {
 	// Request user info
 	res, err := client.Get("https://www.googleapis.com/oauth2/v2/userinfo")
 	if err != nil {
-		fmt.Printf("unable to get google userinfo %v\n", err)
+		log.Logger.Error("unable to get google user info", "err", err)
+	
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error":"Internal server error"})
 	}
 	defer res.Body.Close()
@@ -78,7 +82,8 @@ func (h *SignInHandler) SignIn(c *fiber.Ctx) error {
 
 	// Decode json response into user struct
 	if err := json.NewDecoder(res.Body).Decode(&userInfo); err != nil {
-		fmt.Printf("unable to decode userinfo: %v\n", err)
+		log.Logger.Error("unable to decode user info", "err", err)
+	
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error":"Internal server error"}) 
 	}
 
@@ -88,7 +93,8 @@ func (h *SignInHandler) SignIn(c *fiber.Ctx) error {
 	// Try to fetch the same user from database
 	dbUser, err := h.DBHandler.GetUser(userInfo.Id)
 	if err != nil {
-		fmt.Printf("unable to fetch user from database: %v", err)
+		log.Logger.Error("unable to fetch user from database", "err", err)
+	
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error":"Internal server error"}) 
 	}
 
@@ -99,10 +105,12 @@ func (h *SignInHandler) SignIn(c *fiber.Ctx) error {
 	
 	
 	if userDoesNotExist {
-		fmt.Println("user has not signed in before, create new user") // debuglog
+		log.Logger.Debug("user has not signed in before, create new user")
+		
 		userInfo.SignedUp = time.Now()
 		if err := h.DBHandler.PostUser(&userInfo); err != nil {
-			fmt.Printf("unable to create user: %v", err)
+			log.Logger.Error("unable to create user", "err", err)
+	
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error":"Internal server error"}) 
 		}
 		

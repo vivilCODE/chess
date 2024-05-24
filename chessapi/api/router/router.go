@@ -27,10 +27,14 @@ func SetupRoutes(app *fiber.App, cfg config.Config) {
 
 	var chatroom = handler.NewChatroom()
 
+	var gameQueue = handler.NewGameQueue()
+
 	// Chatroom route
 	chat := api.Group("/ws")
 	chat.Use(RequireWebSocketConnection)
 	chat.Get("/chatroom", websocket.New(chatroom.ChatroomHandler))
+	chat.Get("/newgame", websocket.New(gameQueue.QueueHandler))
+
 }
 
 
