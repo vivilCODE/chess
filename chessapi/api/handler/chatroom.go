@@ -2,7 +2,6 @@ package handler
 
 import (
 	"encoding/json"
-	"fmt"
 	"sync"
 
 	"github.com/gofiber/websocket/v2"
@@ -26,7 +25,6 @@ func NewChatroom() *Chatroom {
 func (room *Chatroom) ChatroomHandler(c *websocket.Conn) {
 	log.Logger.Debug("received connection request to /chatroom")
 	
-	fmt.Printf("received connection request to /chatroom\n")
 		
 	_, message, err := c.ReadMessage()
 	if err != nil {

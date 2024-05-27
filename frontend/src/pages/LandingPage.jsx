@@ -4,6 +4,7 @@ import { Login } from "../components/Login/Login";
 import { UserContext } from "../index";
 import { useContext, useEffect } from "react";
 import { Chatroom } from "../components/Chatroom/chatroom";
+import { PlayOnline } from "../components/PlayOnline/playonline";
 
 export const LandingPage = () => {
   const [user, setUser] = useContext(UserContext);
@@ -21,7 +22,9 @@ export const LandingPage = () => {
       <button onClick={apiService.Ping}>Ping</button>
       <GameWindow />
 
-      <Chatroom />
+      {/* <Chatroom /> */}
+
+      <PlayOnline />
     </div>
   );
 };
