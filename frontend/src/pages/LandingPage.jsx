@@ -19,7 +19,6 @@ export const LandingPage = () => {
 
       <p>{user ? "signed in as " + user.user.name : "not signed in"}</p>
 
-      <button onClick={apiService.Ping}>Ping</button>
       <GameWindow />
 
       {/* <Chatroom /> */}

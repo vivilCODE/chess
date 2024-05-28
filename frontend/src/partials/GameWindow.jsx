@@ -21,15 +21,16 @@ export const GameWindow = () => {
   // then update the game state and reset selectedSquares state
   useEffect(() => {
     const MakeMove = async () => {
-      let updatedGame = await apiService.MakeMove(
-        game,
-        selectedSquares.from,
-        selectedSquares.to
-      );
-      setGame(() => updatedGame.game);
-      setSelectedSquares(() => {
-        return { from: null, to: null };
-      });
+      // let updatedGame = await apiService.MakeMove(
+      //   game,
+      //   selectedSquares.from,
+      //   selectedSquares.to
+      // );
+      // setGame(() => updatedGame.game);
+      // setSelectedSquares(() => {
+      //   return { from: null, to: null };
+      // });
+      // Replace this logic with websocket stuff
     };
 
     if (twoSquaresSelected(selectedSquares)) {
@@ -37,15 +38,14 @@ export const GameWindow = () => {
     }
   }, [selectedSquares, game]);
 
-  const NewGame = async () => {
-    let game = await apiService.NewGame();
-    console.log("game: ", game);
-    setGame(() => game.game);
-  };
+  // const NewGame = async () => {
+  //   let game = await apiService.NewGame();
+  //   console.log("game: ", game);
+  //   setGame(() => game.game);
+  // };
 
   return (
     <>
-      <button onClick={NewGame}>NewGame</button>
       <div className="game-window">
         {game && (
           <>
