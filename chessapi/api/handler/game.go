@@ -3,155 +3,145 @@ package handler
 import (
 	"encoding/json"
 	"math/rand"
-	"sync"
 
 	"github.com/gofiber/websocket/v2"
+	"github.com/google/uuid"
 	"github.com/vivilCODE/chess/chessapi/api/model"
 	"github.com/vivilCODE/chess/chessapi/log"
 )
 
-type Client struct {
-	Conn *websocket.Conn
-	User model.User
-	IsWhite bool
+type GameEngine struct {
+	playerWhite *gameClient
+	playerBlack *gameClient
+	game        model.Game
 }
 
-type GameQueue struct {
-	Queue []*Client
+func NewGameEngine(p1, p2 *gameClient) *GameEngine{
+	gameId := uuid.NewString()
+	
+	pWhite, pBlack := assignBlackWhite(p1, p2)
 
-	queueIsFull chan bool
-
-	sync.Mutex
-}
-
-func NewGameQueue() *GameQueue {
-	q :=  &GameQueue{
-		Queue: make([]*Client, 0),	
-		queueIsFull: make(chan bool),
+	ge := &GameEngine{
+		playerWhite: pWhite,
+		playerBlack: pBlack,
+		game: model.Game{
+			ID: gameId,
+			PlayerWhite: pWhite.user,
+			PlayerBlack: pBlack.user,
+			Board: generateBoard(),
+		},
 	}
 
-	go q.matchMaker()
-
-	return q
+	return ge
 }
 
-// func matchMaker waits for a notification saying that the queue is full,
-// then is calls start game with the two first players in the queue.
-func (q *GameQueue) matchMaker() {
-	for {
-		<- q.queueIsFull
-		q.Lock()
 
-		if len(q.Queue) < 2 {
-			q.Unlock()
-			continue
-		}
+func (ge *GameEngine) StartGame() {
+	pWhite := ge.playerWhite
+	pBlack := ge.playerBlack
 
-		playerOne := q.Queue[0]
-		playerTwo := q.Queue[1]
-		q.Queue = q.Queue[2:]
+	
+	log.Logger.Debug("starting new game", "white", pWhite.user.Name, "black", pBlack.user.Name)
+	
+	// log.Logger.Debug("game:","game", ge.game)
 
-		q.Unlock()
-
-		q.StartGame(playerOne, playerTwo)
+	gameJSON, err := json.Marshal(ge.game)
+	if err != nil {
+		log.Logger.Error("unable to marshal game data", "err", err)
 	}
-}
 
-func (q *GameQueue) StartGame(playerOne, playerTwo *Client) {
-	log.Logger.Debug("two players in queue, start game between", "player1", playerOne.User.Name, "player2", playerTwo.User.Name)
-
+	log.Logger.Debug("game json:", "game", gameJSON)
+	
 	startMessage := []byte("start game")
-
-	p1, p2:=	assignBlackWhite(playerOne, playerTwo)
-
-	log.Logger.Debug("colors", p1.User.Name, p1.IsWhite, p2.User.Name, p2.IsWhite)
+	messageWithGame := append(startMessage, gameJSON...)
 
 	// Send the start message to both players
-	if err := p1.Conn.WriteMessage(websocket.TextMessage, startMessage); err != nil {
-		log.Logger.Error("unable to start game for player1", "err", err)
+	if err := pWhite.conn.WriteMessage(websocket.TextMessage, messageWithGame); err != nil {
+		log.Logger.Error("unable to start game for white", "err", err)
 	} else {
-		log.Logger.Debug("game start message sent to player1", "name", p1.User.Name)
+		log.Logger.Debug("game start message sent to white", "name", pWhite.user.Name)
 	}
 
-	if err := p2.Conn.WriteMessage(websocket.TextMessage, startMessage); err != nil {
-		log.Logger.Error("unable to start game for player2", "err", err)
-	} else {
-		log.Logger.Debug("game start message sent to player2", "name", p2.User.Name)
-	}
-}
-
-
-func (q *GameQueue) AddClient(client *Client) {
-	q.Lock()
-	defer q.Unlock()
-	q.Queue = append(q.Queue, client)
-
-	log.Logger.Debug("Added player to queue", "name", client.User.Name, "current queue length", len(q.Queue))
-
-	
-	if len(q.Queue) >=2 {
-		log.Logger.Debug("queue is full, notifying handler", "queue length", len(q.Queue))		
-		q.queueIsFull <- true
+	if err := pBlack.conn.WriteMessage(websocket.TextMessage, messageWithGame); err != nil {
+		log.Logger.Error("unable to start game for black", "err", err)
+		} else {
+		log.Logger.Debug("game start message sent to black", "name", pBlack.user.Name)
 	}
 }
-
-// func QueueHandler accepts incoming requests and adds clients to the queue which will 
-// take them to a gaee once two people have joined it
-func (q *GameQueue) QueueHandler(c *websocket.Conn) {
-	log.Logger.Debug("received connection request to queue handler")
-	
-	defer func() {
-		if err := c.Close(); err != nil {
-			log.Logger.Error("error closing websocket connection", "err", err)
-		}
-	}()
-
-	_, message, err := c.ReadMessage()
-	if err != nil {
-		log.Logger.Error("unable to read socket message", "err", err)
-	
-		return
-	}
-
-	var user model.User
-
-	if err := json.Unmarshal(message, &user); err != nil {
-		log.Logger.Error("unable to unmarshal user in first socket message", "err", err)
-		return
-	}	
-
-	if err := c.WriteMessage(websocket.TextMessage, []byte("waiting to find match")); err != nil {
-		log.Logger.Error("unable to message client", "player", user.Name, "err", err)
-	}
-	
-	q.AddClient(&Client{
-		Conn: c,
-		User: user,
-	})
-
-	// This loop is just to keep the connection alive by stopping the handler for exiting
-	for {
-		_, _, err := c.ReadMessage()
-		if err != nil {
-			log.Logger.Error("error reading message", "player", user.Name, "err", err)
-		}
-	}
-}
-
 
 // func assingBlackWhite assigns black or white pieces to the two players
 // based on a random int
-func assignBlackWhite(playerOne, playerTwo *Client) (*Client, *Client) {
-	p1 := playerOne
-	p2 := playerTwo
-	
+func assignBlackWhite(p1, p2 *gameClient) (*gameClient, *gameClient) {
 	if rand.Intn(2) == 1 {
-		p1.IsWhite = true
-		p2.IsWhite = false
+		return p1, p2
 	} else {
-		p1.IsWhite = false
-		p2.IsWhite = true
+		return p2, p1
 	}
+}
 
-	return p1, p2
-} 
+
+func generateBoard() model.Board {
+	squares := []model.Square{}
+
+	for y := 1; y <= 8; y++ {
+		for x := 1; x <= 8; x++ {
+			piece := model.NilPiece
+			isWhite := true
+
+			if isOdd(y) && isOdd(x) ||
+				!isOdd(y) && !isOdd(x) {
+				isWhite = false
+			}
+
+			switch {
+			// White side of the board
+			case x == 1 && y == 1 ||
+				x == 8 && y == 1:
+				piece = model.WhiteRook
+			case x == 2 && y == 1 ||
+				x == 7 && y == 1:
+				piece = model.WhiteKnight
+			case x == 3 && y == 1 ||
+				x == 6 && y == 1:
+				piece = model.WhiteBishop
+			case x == 4 && y == 1:
+				piece = model.WhiteQueen
+			case x == 5 && y == 1:
+				piece = model.WhiteKing
+			case y == 2:
+				piece = model.WhitePawn
+
+			// Black side of the board
+			case y == 7:
+				piece = model.BlackPawn
+			case x == 1 && y == 8 ||
+				x == 8 && y == 8:
+				piece = model.BlackRook
+			case x == 2 && y == 8 ||
+				x == 7 && y == 8:
+				piece = model.BlackKnight
+			case x == 3 && y == 8 ||
+				x == 6 && y == 8:
+				piece = model.BlackBishop
+			case x == 4 && y == 8:
+				piece = model.BlackQueen
+			case x == 5 && y == 8:
+				piece = model.BlackKing
+			}
+
+			squares = append(squares, model.Square{
+				Pos: model.SquarePosition{X:x, Y: y},
+				IsWhite: isWhite,
+				Piece: piece,
+			})
+		}
+	}
+	return model.Board{
+		Squares: squares,
+	}
+}
+
+
+func isOdd(n int) bool {
+	return n % 2 != 0
+}

@@ -34,6 +34,8 @@ export const PlayOnline = () => {
 
         case "waiting to find match":
           setWaitingForGame(() => true);
+        default:
+          console.log(msg);
       }
     };
   };
