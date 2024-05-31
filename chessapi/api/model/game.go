@@ -3,6 +3,7 @@ package model
 import (
 	"encoding/json"
 	"fmt"
+	"time"
 )
 
 type Game struct {
@@ -10,6 +11,7 @@ type Game struct {
 	PlayerWhite User   `json:"playerWhite"`
 	PlayerBlack User   `json:"playerBlakc"`
 	Board       Board  `json:"board"`
+	Started time.Time `json:"started"`
 }
 
 type Board struct {
