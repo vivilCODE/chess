@@ -53,16 +53,16 @@ func (ge *GameEngine) StartGame() {
 	log.Logger.Debug("game json:", "game", gameJSON)
 	
 	startMessage := []byte("start game")
-	messageWithGame := append(startMessage, gameJSON...)
+	// messageWithGame := append(startMessage, gameJSON...)
 
 	// Send the start message to both players
-	if err := pWhite.conn.WriteMessage(websocket.TextMessage, messageWithGame); err != nil {
+	if err := pWhite.conn.WriteMessage(websocket.TextMessage, startMessage); err != nil {
 		log.Logger.Error("unable to start game for white", "err", err)
 	} else {
 		log.Logger.Debug("game start message sent to white", "name", pWhite.user.Name)
 	}
 
-	if err := pBlack.conn.WriteMessage(websocket.TextMessage, messageWithGame); err != nil {
+	if err := pBlack.conn.WriteMessage(websocket.TextMessage, startMessage); err != nil {
 		log.Logger.Error("unable to start game for black", "err", err)
 		} else {
 		log.Logger.Debug("game start message sent to black", "name", pBlack.user.Name)
@@ -78,7 +78,6 @@ func assignBlackWhite(p1, p2 *gameClient) (*gameClient, *gameClient) {
 		return p2, p1
 	}
 }
-
 
 func generateBoard() model.Board {
 	squares := []model.Square{}
@@ -140,7 +139,6 @@ func generateBoard() model.Board {
 		Squares: squares,
 	}
 }
-
 
 func isOdd(n int) bool {
 	return n % 2 != 0

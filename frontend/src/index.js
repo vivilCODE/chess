@@ -11,7 +11,8 @@ import "./styles/css-reset.css";
 import "./styles/global.css";
 
 import { LandingPage } from "./pages/LandingPage";
-import { Signin } from "./pages/Signin";
+import { SigninPage } from "./pages/SigninPage";
+import { GameSelectionPage } from "./pages/GameSelectionPage";
 
 const router = createBrowserRouter([
   {
@@ -20,7 +21,11 @@ const router = createBrowserRouter([
   },
   {
     path: "/signin",
-    element: <Signin />,
+    element: <SigninPage />,
+  },
+  {
+    path: "/play",
+    element: <GameSelectionPage />,
   },
 ]);
 

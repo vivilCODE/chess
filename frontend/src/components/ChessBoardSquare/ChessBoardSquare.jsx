@@ -2,36 +2,20 @@ import { useEffect, useRef } from "react";
 
 import "./chessboardsquare.css";
 
-const pieceEnumToString = {
-  0: "",
-  1: "White Pawn",
-  2: "Black Pawn",
-  3: "White Rook",
-  4: "Black Rook",
-  5: "White Knight",
-  6: "Black Knight",
-  7: "White Bishop",
-  8: "Black Bishop",
-  9: "White King",
-  10: "Black King",
-  11: "White Queen",
-  12: "Black Queen",
-};
-
-const pieceEnumToImgPath = {
-  0: "",
-  1: "./pieces/white-pawn.svg",
-  2: "./pieces/black-pawn.svg",
-  3: "./pieces/white-rook.svg",
-  4: "./pieces/black-rook.svg",
-  5: "./pieces/white-knight.svg",
-  6: "./pieces/black-knight.svg",
-  7: "./pieces/white-bishop.svg",
-  8: "./pieces/black-bishop.svg",
-  9: "./pieces/white-king.svg",
-  10: "./pieces/black-king.svg",
-  11: "./pieces/white-queen.svg",
-  12: "./pieces/black-queen.svg",
+const pieceStringToImgPath = {
+  nilPiece: "",
+  whitePawn: "/pieces/white-pawn.svg",
+  blackPawn: "/pieces/black-pawn.svg",
+  whiteRook: "/pieces/white-rook.svg",
+  blackRook: "/pieces/black-rook.svg",
+  whiteKnight: "/pieces/white-knight.svg",
+  blackKnight: "/pieces/black-knight.svg",
+  whiteBishop: "/pieces/white-bishop.svg",
+  blackBishop: "/pieces/black-bishop.svg",
+  whiteKing: "/pieces/white-king.svg",
+  blackKing: "/pieces/black-king.svg",
+  whiteQueen: "/pieces/white-queen.svg",
+  blackQueen: "/pieces/black-queen.svg",
 };
 
 const thisSquareIsSelected = (selectedSquares, thisSquare) => {
@@ -53,21 +37,23 @@ const secondSelectionIsNull = (selectedSquares) => {
 };
 
 const hasPiece = (thisSquare) => {
-  return thisSquare.piece !== 0;
+  return thisSquare.piece !== "nilPiece";
 };
 
 export const ChessBoardSquare = (props) => {
-  const { square, selectedSquares, setSelectedSquares } = props;
+  const { square, selectedSquares, setSelectedSquares, active } = props;
   const thisSquare = useRef();
 
   const className =
-    square.color === 0
+    square.isWhite === true
       ? "chess-board__square--white"
       : "chess-board__square--black";
 
   // Every time selectedSquares is updated, this checks if the current square should be
-  // visually marked as selected by adding / removing a class
+  // visually marked as selected, and adds / removes the "selected" class accordingly
   useEffect(() => {
+    if (!active) return; // If this board is only a display board, don't do anything on click
+
     if (thisSquareIsSelected(selectedSquares, square)) {
       thisSquare.current.classList.add("square--selected");
       return;
@@ -75,7 +61,10 @@ export const ChessBoardSquare = (props) => {
     thisSquare.current.classList.remove("square--selected");
   }, [selectedSquares, square]);
 
+  // Controls what happens to the selectedSquares state when this square is clicked
   const select = (e) => {
+    if (!active) return; // If this board is only a display board, don't do anything on click
+
     // If the same square is clicked twice, reset the selection
     if (thisSquareIsFirstSelection(selectedSquares, square)) {
       setSelectedSquares(() => {
@@ -114,9 +103,9 @@ export const ChessBoardSquare = (props) => {
     <li className={className} onClick={select} ref={thisSquare}>
       {hasPiece(square) && (
         <img
-          alt={pieceEnumToString[square.piece]}
+          alt={square.piece}
           className="chess-board__square__piece-img"
-          src={pieceEnumToImgPath[square.piece]}
+          src={pieceStringToImgPath[square.piece]}
         />
       )}
     </li>

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import * as apiService from "../apiservice/apiservice";
-import { ChessBoard } from "../components/ChessBoard/ChessBoard";
-import { PlayerColumn } from "../components/PlayerColumn/PlayerColumn";
+import * as apiService from "../../apiservice/apiservice";
+import { ChessBoard } from "../../components/ChessBoard/ChessBoard";
+import { PlayerColumn } from "../../components/PlayerColumn/PlayerColumn";
 
 import "./gamewindow.css";
 
@@ -47,17 +47,15 @@ export const GameWindow = () => {
   return (
     <>
       <div className="game-window">
-        {game && (
-          <>
-            <PlayerColumn />
-            <ChessBoard
-              game={game}
-              selectedSquares={selectedSquares}
-              setSelectedSquares={setSelectedSquares}
-            />
-            <PlayerColumn />
-          </>
-        )}
+        <>
+          <PlayerColumn />
+          <ChessBoard
+            game={game}
+            selectedSquares={selectedSquares}
+            setSelectedSquares={setSelectedSquares}
+          />
+          <PlayerColumn />
+        </>
       </div>
     </>
   );

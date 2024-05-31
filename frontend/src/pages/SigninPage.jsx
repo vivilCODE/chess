@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import * as apiService from "../apiservice/apiservice";
 import { UserContext } from "../index";
 
-export const Signin = () => {
+export const SigninPage = () => {
   const [user, setUser] = useContext(UserContext);
   const navigate = useNavigate();
 

@@ -1,10 +1,9 @@
 import * as apiService from "../apiservice/apiservice";
-import { GameWindow } from "../partials/GameWindow";
 import { Login } from "../components/Login/Login";
 import { UserContext } from "../index";
 import { useContext, useEffect } from "react";
 import { Chatroom } from "../components/Chatroom/chatroom";
-import { PlayOnline } from "../components/PlayOnline/playonline";
+import { Link } from "react-router-dom";
 
 export const LandingPage = () => {
   const [user, setUser] = useContext(UserContext);
@@ -19,11 +18,8 @@ export const LandingPage = () => {
 
       <p>{user ? "signed in as " + user.user.name : "not signed in"}</p>
 
-      <GameWindow />
-
       {/* <Chatroom /> */}
-
-      <PlayOnline />
+      <Link to={"/play"}>Play</Link>
     </div>
   );
 };
