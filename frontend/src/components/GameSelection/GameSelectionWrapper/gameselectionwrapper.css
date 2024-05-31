@@ -1,10 +1,10 @@
-.game-selection-window {
+.game-selection-wrapper {
   width: 100vw;
   display: flex;
   justify-content: center;
 }
 
-.game-selection-window__selection-column {
+.game-selection-wrapper__selection-column {
   width: 20vw;
   height: 40vw;
   margin-left: 5vw;

@@ -1,15 +1,15 @@
 import { useEffect, useState } from "react";
-import * as apiService from "../../apiservice/apiservice";
-import { ChessBoard } from "../../components/ChessBoard/ChessBoard";
+import * as apiService from "../../../apiservice/apiservice";
+import { ChessBoard } from "../ChessBoard/ChessBoard";
 import { PlayerColumn } from "../../components/PlayerColumn/PlayerColumn";
 
-import "./gamewindow.css";
+import "./gamewrapper.css";
 
 const twoSquaresSelected = (selectedSquares) => {
   return selectedSquares.from != null && selectedSquares.to != null;
 };
 
-export const GameWindow = () => {
+export const GameWrapper = () => {
   const [game, setGame] = useState(null);
   const [selectedSquares, setSelectedSquares] = useState({
     from: null,
@@ -46,7 +46,7 @@ export const GameWindow = () => {
 
   return (
     <>
-      <div className="game-window">
+      <div className="game-wrapper">
         <>
           <PlayerColumn />
           <ChessBoard

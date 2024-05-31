@@ -1,6 +1,6 @@
 import "./move.css";
 
-export const Move = () => {
+export const PlayerColumnMove = () => {
   return (
     <li className="player-column__moves-list__move">
       <div className="player-column__moves-list__move__left">

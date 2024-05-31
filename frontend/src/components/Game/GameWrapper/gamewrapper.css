@@ -1,4 +1,4 @@
-.game-window {
+.game-wrapper {
   display: flex;
   justify-content: space-between;
 }

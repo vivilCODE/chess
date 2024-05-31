@@ -1,10 +1,10 @@
-import { ChessBoard } from "../../components/ChessBoard/ChessBoard";
-import { UserContext } from "../../index";
+import { ChessBoard } from "../../Game/ChessBoard/ChessBoard";
+import { UserContext } from "../../../index";
 import { useContext, useState } from "react";
 
-import "./gameselectionwindow.css";
+import "./gameselectionwrapper.css";
 
-export const GameSelectionWindow = () => {
+export const GameSelectionWrapper = () => {
   const [user] = useContext(UserContext);
   const [playHuman, setPlayHuman] = useState(true);
   const [playComputer, setPlayComputer] = useState(false);
@@ -66,20 +66,20 @@ export const GameSelectionWindow = () => {
   };
 
   return (
-    <div className="game-selection-window">
+    <div className="game-selection-wrapper">
       <ChessBoard />
 
-      <div className="game-selection-window__selection-column">
-        <div className="game-selection-window__selection-column__player-or-computer-btns">
+      <div className="game-selection-wrapper__selection-column">
+        <div className="game-selection-wrapper__selection-column__player-or-computer-btns">
           <button
             onClick={togglePlayHuman}
-            className="game-selection-window__selection-column__player-or-computer-btns--human"
+            className="game-selection-wrapper__selection-column__player-or-computer-btns--human"
           >
             Play Human
           </button>
           <button
             onClick={togglePlayComputer}
-            className="game-selection-window__selection-column__player-or-computer-btns--computer"
+            className="game-selection-wrapper__selection-column__player-or-computer-btns--computer"
           >
             Play Computer
           </button>

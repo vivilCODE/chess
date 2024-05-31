@@ -1,4 +1,4 @@
-import { Move } from "../Move/Move";
+import { PlayerColumnMove } from "./PlayerColumnMove";
 
 import "./playercolumn.css";
 
@@ -15,11 +15,11 @@ export const PlayerColumn = () => {
         <span className="player-column__player-info__color">White</span>
       </div>
       <ul className="player-column__moves-list">
-        <Move />
-        <Move />
-        <Move />
-        <Move />
-        <Move />
+        <PlayerColumnMove />
+        <PlayerColumnMove />
+        <PlayerColumnMove />
+        <PlayerColumnMove />
+        <PlayerColumnMove />
       </ul>
       <span className="player-column__timer">05:29</span>
       <button className="player-column__resign-btn">RESIGN</button>

@@ -1,6 +1,6 @@
 import "./chessboard.css";
 import { useEffect, useState } from "react";
-import { ChessBoardSquare } from "../ChessBoardSquare/ChessBoardSquare";
+import { ChessBoardSquare } from "./ChessBoardSquare";
 
 // The board gets passed a 'game' object, which contains all information needed to render the board.
 // If game is nil, which it will be in the game selection screen until a game is initiated,

@@ -1,12 +1,11 @@
-import { GameSelectionWindow } from "../partials/GameSelectionWindow/GameSelectionWindow";
-import { Link } from "react-router-dom";
+import { GameSelectionWrapper } from "../components/GameSelection/GameSelectionWrapper/GameSelectionWrapper";
+import { NavBar } from "../components/Navigation/NavBar";
 
 export const GameSelectionPage = () => {
   return (
     <>
-      game selection page
-      <Link to={"/"}>Home</Link>
-      <GameSelectionWindow />
+      <NavBar />
+      <GameSelectionWrapper />
     </>
   );
 };
