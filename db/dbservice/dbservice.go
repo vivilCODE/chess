@@ -6,7 +6,7 @@ import (
 	"fmt"
 
 	"github.com/vivilCODE/chess/db/log"
-	model "github.com/vivilCODE/chess/db/model"
+	"github.com/vivilCODE/chess/db/model"
 )
 
 var (
