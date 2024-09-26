@@ -48,16 +48,16 @@ export const GameSelectionWrapper = () => {
     };
 
     socket.onmessage = (e) => {
-      const msg = e.data;
+      const msg = JSON.parse(e.data);
 
-      switch (msg) {
-        case "start game":
+      switch (msg.type) {
+        case "opponentFound":
           setWaitingForOpponent(() => false);
           setFoundOpponent(() => true);
         // redirect to a url like /game/5910919dke9d390209
         // the id is the id of the game
 
-        case "waiting to find match":
+        case "waiting":
           setWaitingForOpponent(() => true);
         default:
           console.log(msg);

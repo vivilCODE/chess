@@ -48,6 +48,7 @@ func main() {
 		log.Logger.Fatal("unable to load .env file", "err", err)
 	}
 
+	// Ensure database is running and reachable
 	if err := pingDatabase(*dbAddress); err != nil {
 		log.Logger.Fatal("unable to reach database service", "err", err)
 	}
@@ -64,7 +65,7 @@ func main() {
 	gapiClientID:= 	os.Getenv("GAPI_CLIENT_ID")
 	gapiClientSecret := os.Getenv("GAPI_CLIENT_SECRET")
 
-	chessapiConf := config.Config{
+	chessapiConfig := config.Config{
 		DBHandler: dbHandler,
 		GapiClientID: gapiClientID,
 		GapiClientSecret: gapiClientSecret,
@@ -78,7 +79,7 @@ func main() {
         AllowMethods:     "GET,POST,HEAD,PUT,DELETE,PATCH,OPTIONS",
     }))
 
-	router.SetupRoutes(app, chessapiConf)
+	router.SetupRoutes(app, chessapiConfig)
 
 	if err := app.Listen(*httpPort); err != nil {
 		log.Logger.Fatal("unable to serve chessapi on", "port", *httpPort, "err", err)

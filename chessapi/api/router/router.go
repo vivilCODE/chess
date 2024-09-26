@@ -33,11 +33,8 @@ func SetupRoutes(app *fiber.App, cfg config.Config) {
 	chat := api.Group("/ws")
 	chat.Use(RequireWebSocketConnection)
 	chat.Get("/chatroom", websocket.New(chatroom.ChatroomHandler))
-	chat.Get("/newgame", websocket.New(gameQueue.QueueHandler))
-
+	chat.Get("/newgame", websocket.New(gameQueue.QueueHandler)) // This should not be under the chat group
 }
-
-
 
 func RequireWebSocketConnection(c *fiber.Ctx) error{
 	if websocket.IsWebSocketUpgrade(c) {

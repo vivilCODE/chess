@@ -10,7 +10,7 @@ import (
 )
 
 type Chatroom struct {
-	// clients hollds all current clients in this room
+	// clients holds all current clients in this room
 	Clients map[*websocket.Conn]model.User
 
 	Mu sync.Mutex
@@ -70,7 +70,7 @@ func (room *Chatroom) ChatroomHandler(c *websocket.Conn) {
 			
 		// Broadcast the message to all clients in the chatroom
 		room.Mu.Lock()
-		for client, _ := range room.Clients {
+		for client := range room.Clients {
 			if err := client.WriteMessage(messageType, []byte(user.Name+": "+string(message))); err != nil {
 				log.Logger.Error("write error", "err", err)
 			}

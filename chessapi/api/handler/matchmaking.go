@@ -11,11 +11,21 @@ import (
 	"github.com/vivilCODE/chess/chessapi/log"
 )
 
+// Generic message to send to the player in queue,
+// to notify that they are waiting for another player and to notify an opponent has been found
+type message struct {
+	Type string `json:"type"`
+	GameID string `json:"gameId,omitempty"`
+}
+
+// type gameClient represents one player.
+// It contains a websocket connection and the user information
 type gameClient struct {
 	conn *websocket.Conn
 	user model.User
 }
 
+// GameQueue contains a queue of players, and a bool signifying if the queue is full (two players)
 type GameQueue struct {
 	queue []*gameClient
 
@@ -49,6 +59,8 @@ func (q *GameQueue) matchMaker() {
 
 		playerOne := q.queue[0]
 		playerTwo := q.queue[1]
+
+		// Empty the queue
 		q.queue = q.queue[2:]
 
 		q.Unlock()
@@ -65,34 +77,29 @@ func (q *GameQueue) startGame(p1, p2 *gameClient) {
 
 	log.Logger.Debug("starting new game", "game id", gameId, "white", pWhite.user.Name, "black", pBlack.user.Name)
 	
+	startMessage := message{
+		Type: "opponentFound",
+		GameID: gameId,
+	}
 
-	// board := generateBoard()
-
-	// game := model.Game{
-	// 	ID: gameId,
-	// 	PlayerWhite: pWhite.user,
-	// 	PlayerBlack: pBlack.user,
-	// 	Board: board,
-	// 	Started: time.Now(),
-	// }
-
-
-	startMessage := []byte(gameId)
-	// messageWithGame := append(startMessage, gameJSON...)
+	jsonStartMessage, err := json.Marshal(startMessage)
+	if err != nil {
+		log.Logger.Error("unable to marshal startMessage: ", err)
+		return
+	}
 
 	// Send the start message to both players
-	if err := pWhite.conn.WriteMessage(websocket.TextMessage, startMessage); err != nil {
+	if err := pWhite.conn.WriteMessage(websocket.TextMessage, jsonStartMessage); err != nil {
 		log.Logger.Error("unable to start game for white", "err", err)
 	} else {
 		log.Logger.Debug("game start message sent to white", "name", pWhite.user.Name)
 	}
 
-	if err := pBlack.conn.WriteMessage(websocket.TextMessage, startMessage); err != nil {
+	if err := pBlack.conn.WriteMessage(websocket.TextMessage, jsonStartMessage); err != nil {
 		log.Logger.Error("unable to start game for black", "err", err)
 		} else {
 		log.Logger.Debug("game start message sent to black", "name", pBlack.user.Name)
 	}
-
 }
 
 // func assingBlackWhite assigns black or white pieces to the two players
@@ -175,13 +182,13 @@ func isOdd(n int) bool {
 func (q *GameQueue) addClient(client *gameClient) {
 	q.Lock()
 	defer q.Unlock()
+
 	q.queue = append(q.queue, client)
 
 	log.Logger.Debug("Added player to queue", "name", client.user.Name, "current queue length", len(q.queue))
 
 	
 	if len(q.queue) >=2 {
-		log.Logger.Debug("queue is full, notifying handler", "queue length", len(q.queue))		
 		q.queueIsFull <- true
 	}
 }
@@ -197,29 +204,38 @@ func (q *GameQueue) QueueHandler(c *websocket.Conn) {
 		}
 	}()
 
-	_, message, err := c.ReadMessage()
+	_, msg, err := c.ReadMessage()
 	if err != nil {
 		log.Logger.Error("unable to read socket message", "err", err)
-	
 		return
 	}
 
 	var user model.User
 
-	if err := json.Unmarshal(message, &user); err != nil {
+	if err := json.Unmarshal(msg, &user); err != nil {
 		log.Logger.Error("unable to unmarshal user in first socket message", "err", err)
 		return
 	}	
 
-	if err := c.WriteMessage(websocket.TextMessage, []byte("waiting to find match")); err != nil {
-		log.Logger.Error("unable to message client", "player", user.Name, "err", err)
-	}
-	
 	q.addClient(&gameClient{
 		conn: c,
 		user: user,
 	})
 
+	waitingMessage := message{
+		Type: "waiting",
+	}
+
+	jsonWaitingMessage, err := json.Marshal(waitingMessage)
+	if err != nil {
+		log.Logger.Error("unable to marshal startMessage: ", err)
+		return
+	}
+
+	if err := c.WriteMessage(websocket.TextMessage, jsonWaitingMessage); err != nil {
+		log.Logger.Error("unable to message client", "player", user.Name, "err", err)
+	}
+	
 	// This loop is just to keep the connection alive by stopping the handler from exiting
 	for {
 		_, _, err := c.ReadMessage()

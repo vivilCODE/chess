@@ -13,7 +13,7 @@ import (
 	"github.com/kouhin/envflag"
 	"github.com/vivilCODE/chess/db/dbservice"
 	"github.com/vivilCODE/chess/db/log"
-	"github.com/vivilCODE/chess/db/models"
+	models "github.com/vivilCODE/chess/db/model"
 )
 
 
@@ -74,7 +74,7 @@ func main() {
 		// Do something with the user object
 		log.Logger.Debug("postuser endpoint received user", "user", user)
 	
-		if err := service.CreateUser(user); err != nil {
+		if err := service.InsertUser(user); err != nil {
 			log.Logger.Error("unable to create user", "err", err)
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()}) 
 		}
@@ -118,6 +118,13 @@ func main() {
 		c.SendString("pinged :)")
 		return nil
 	})
+
+	app.Post("/db/games/:id", func(c *fiber.Ctx) error {
+		id := c.Params("id")
+		log.Logger.Debug("received request to insert new game", "id", id)
+		return nil
+	})
+
 
 	app.Listen(":8082")
 }

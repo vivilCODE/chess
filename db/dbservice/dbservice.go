@@ -6,7 +6,7 @@ import (
 	"fmt"
 
 	"github.com/vivilCODE/chess/db/log"
-	"github.com/vivilCODE/chess/db/models"
+	model "github.com/vivilCODE/chess/db/model"
 )
 
 var (
@@ -69,7 +69,7 @@ func (s *DBService) Disconnect() error {
 }
 
 
-func (s *DBService) CreateUser(user models.User) (error) {
+func (s *DBService) InsertUser(user model.User) (error) {
 	insertUserStatement := `
     INSERT INTO "user" (id, name, email, signup_timestamp)
     VALUES ($1, $2, $3, $4)`
@@ -82,20 +82,20 @@ func (s *DBService) CreateUser(user models.User) (error) {
 	return nil
 }
 
-func (s *DBService) GetUser(id string) (models.User, error) {
+func (s *DBService) GetUser(id string) (model.User, error) {
 	getUserStatement := `SELECT id, name, email, signup_timestamp FROM "user" WHERE id = $1;`
 	
 	row :=s.conn.QueryRow(getUserStatement, id)
 		
-	var user = models.User{}
+	var user = model.User{}
 
 	err := row.Scan(&user.Id, &user.Name, &user.Email, &user.SignedUp)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return models.User{}, ErrorNoUserFound
+			return model.User{}, ErrorNoUserFound
 		}
 
-		return models.User{}, fmt.Errorf("unexpected error scanning rows for user with id %s, err: %v", id, err)
+		return model.User{}, fmt.Errorf("unexpected error scanning rows for user with id %s, err: %v", id, err)
 	}
 
 	return user, nil
